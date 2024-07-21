@@ -1,6 +1,7 @@
-const db = require('./accounts-model')
+const Accounts = require('./accounts-model')
+const db = require('../../data/db-config')
 
-function checkAccountPayload (req, res, next) {
+ exports.checkAccountPayload = (req, res, next) => {
   // DO YOUR MAGIC
   // Note: you can either write "manual" validation logic
   // or use the Yup library (not currently installed)
@@ -9,13 +10,16 @@ function checkAccountPayload (req, res, next) {
   if(name === undefined || budget === undefined){
     error.message = "name and budget are required"
     next(error)
-  } else if (typeof budget !== 'number') {
-    error.message = "budget of account must be a number"
+  }else if (typeof name !== 'string'){
+    error.message = "name of account must be a string"
     next(error)
   } else if ( name.trim().length < 3 || name.trim().length > 100){
     error.message = "name of account must be between 3 and 100"
     next(error)
-  } else if (budget < 1 || budget > 100000000){
+  } else if (typeof budget !== 'number' || isNaN(budget)) {
+    error.message = "budget of account must be a number"
+    next(error)
+  } else if (budget < 0 || budget > 1000000){
     error.message = "budget of account is too large or too small" 
     next(error)
   }
@@ -26,11 +30,10 @@ function checkAccountPayload (req, res, next) {
   }
 }
 
- async function checkAccountNameUnique(req, res, next) {
+ exports.checkAccountNameUnique = async (req, res, next) => {
   // DO YOUR MAGIC
   try{
-    const exisiting = await db('accounts')
-    .where('name' , req.body.name.trim())
+    const exisiting = await db('accounts').where('name' , req.body.name.trim())
     .first()
 
     if(exisiting){
@@ -44,10 +47,11 @@ function checkAccountPayload (req, res, next) {
   }
 }
 
-async function checkAccountId(req, res, next) {
+exports.checkAccountId = async (req, res, next) => {
   // DO YOUR MAGIC
   try {
-    const accounts = await db.getById(req.params.id)
+    const accounts = await Accounts.getById(req.params.id)
+    console.log(accounts)
     if(accounts){
       req.account = accounts
       next ()
@@ -60,9 +64,5 @@ async function checkAccountId(req, res, next) {
   }
 }
 
-module.exports = {
-  checkAccountId,
-  checkAccountNameUnique,
-  checkAccountPayload,
-}
+
 
