@@ -37,12 +37,27 @@ router.post('/', md.checkAccountPayload, md.checkAccountNameUnique ,
   }
 })
 
-router.put('/:id', (req, res, next) => {
+router.put('/:id', md.checkAccountPayload , md.checkAccountId, 
+  async (req, res, next) => {
   // DO YOUR MAGIC
+  try{
+    const updatedAccount = await Accounts.updateById(req.params.id , req.body)
+    res.status(200).json(updatedAccount)
+  } catch(err){
+    next(err)
+  }
 });
 
-router.delete('/:id', (req, res, next) => {
+router.delete('/:id', md.checkAccountId, 
+  async (req, res, next) => {
   // DO YOUR MAGIC
+  try {
+    const deletedAccount = await Accounts.deleteById(req.params.id)
+    res.status(200).json(deletedAccount)
+  }
+  catch (err) {
+    next(err)
+  }
 })
 
 router.use((err, req, res, next) => { // eslint-disable-line

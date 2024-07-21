@@ -16,12 +16,17 @@ const getById = id => {
  return getById(id)
 }
 
-const updateById = (id, account) => {
+const updateById = async (id, account) => {
   // DO YOUR MAGIC
+  await db('accounts').where('id' , id).update(account)
+  return getById(id)
 }
 
-const deleteById = id => {
+const deleteById = async id => {
   // DO YOUR MAGIC
+  const readyToDelete = await getById(id)
+  await db('accounts').where('id' , id).delete()
+  return readyToDelete
 }
 
 module.exports = {
